@@ -194,6 +194,18 @@ func NewManager(cpuPolicyName string, cpuPolicyOptions map[string]string, reconc
 			return nil, fmt.Errorf("new static policy error: %w", err)
 		}
 
+	case PolicyExclude:
+		topo, err = topology.Discover(machineInfo)
+		if err != nil {
+			return nil, err
+		}
+		klog.InfoS("Detected CPU topology", "topology", topo)
+
+		policy, err = NewExcludePolicy(topo, specificCPUs)
+		if err != nil {
+			return nil, fmt.Errorf("new exclude policy error: %w", err)
+		}
+
 	default:
 		return nil, fmt.Errorf("unknown policy: \"%s\"", cpuPolicyName)
 	}
